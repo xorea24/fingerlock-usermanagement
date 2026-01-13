@@ -1,11 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
-// Route::get('/', function () {
-//     return view('home');
-// });
+use App\Http\Controllers\AdminController;
 
 Auth::routes();
 
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::controller(AdminController::class)->group(function () {
+    Route::get('/', 'index')->name('home');
+    Route::get('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/positions', 'positions')->name('positions');
+});
