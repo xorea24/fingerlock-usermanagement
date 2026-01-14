@@ -9,4 +9,5 @@ Route::controller(AdminController::class)->group(function () {
     Route::get('/', 'index')->name('home');
     Route::get('/dashboard', 'dashboard')->name('dashboard');
     Route::get('/positions', 'positions')->name('positions');
+    Route::get('/applicants', 'applicants')->name('applicants');
 });

@@ -32,6 +32,11 @@ class AppServiceProvider extends ServiceProvider
                 'url' => 'positions',
                 'icon' => 'fas fa-fw fa-briefcase',
             ]);
+            $event->menu->add([
+                'text' => 'Applicants',
+                'url' => 'applicants',
+                'icon' => 'fas fa-fw fa-users',
+            ]);
         });
     }
 }
