@@ -7,21 +7,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Position extends Model
+class InterviewApplicant extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'name',
+        'interview_id',
+        'applicant_id',
     ];
 
-    public function applicants(): HasMany
+    public function interview(): BelongsTo
     {
-        return $this->HasMany(Applicant::class, 'position_id');
+        return $this->belongsTo(Interview::class, 'interview_id');
     }
 
-    public function interviews(): HasMany
+    public function applicant(): BelongsTo
     {
-        return $this->HasMany(Interview::class, 'position_id');
+        return $this->belongsTo(Applicant::class, 'applicant_id');
     }
 }

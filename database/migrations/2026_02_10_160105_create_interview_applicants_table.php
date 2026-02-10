@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('positions', function (Blueprint $table) {
+        Schema::create('interview_applicants', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->foreignId('interview_id')->nullable()->constrained('interviews');
+            $table->foreignId('applicant_id')->nullable()->constrained('applicants');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('positions');
+        Schema::dropIfExists('interview_applicants');
     }
 };
