@@ -17,13 +17,14 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
-            $table->string('extension_name')->nullable();
+            $table->string('extension_name', 20)->nullable();
             $table->string('gender', 6)->nullable();
             $table->date('birthdate')->nullable();
             $table->string('civil_status', 20)->nullable();
             $table->text('address')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            $table->unique(['first_name', 'middle_name', 'last_name', 'extension_name']);
         });
     }
 

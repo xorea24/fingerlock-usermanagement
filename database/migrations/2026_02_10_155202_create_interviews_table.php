@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Interview;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +15,8 @@ return new class extends Migration
         Schema::create('interviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('position_id')->nullable()->constrained('positions');
-            $table->timestamp('date_scheduled');
+            $table->timestamp('interview_date');
+            $table->tinyInteger('status')->default(Interview::STATUS_WAITING);
             $table->timestamps();
             $table->softDeletes();
         });

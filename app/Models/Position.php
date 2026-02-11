@@ -11,7 +11,19 @@ class Position extends Model
 {
     use SoftDeletes;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
+        'name',
+    ];
+
+    /**
+     * The attributes to be uppercased.
+     */
+    protected $uppercaseAttributes = [
         'name',
     ];
 

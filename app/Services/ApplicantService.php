@@ -2,20 +2,20 @@
 
 namespace App\Services;
 
-use App\Http\Resources\PositionResource;
-use App\Repositories\PositionRepository;
+use App\Http\Resources\ApplicantResource;
+use App\Repositories\ApplicantRepository;
 use Illuminate\Support\Facades\DB;
 
-class PositionService
+class ApplicantService
 {
     public function __construct(
-        private PositionRepository $positionRepository
+        private ApplicantRepository $applicantRepository
     ) {}
 
     /**
-     * Get all positions
+     * Get all applicants
      */
-    public function getAllPositions($request)
+    public function getAllApplicants($request)
     {
         try {
             $per_page = $request && $request->filled('paginate') ? $request->paginate : 1000;
@@ -27,12 +27,12 @@ class PositionService
                 ];
             }
 
-            $business_industries = $this->positionRepository
+            $business_industries = $this->applicantRepository
                 ->all($filters)
                 ->paginate($per_page);
 
             return [
-                'data' => PositionResource::collection($business_industries),
+                'data' => ApplicantResource::collection($business_industries),
                 'page' => $business_industries->currentPage(),
                 'last_page' => $business_industries->lastPage(),
                 'per_page' => $business_industries->perPage(),
@@ -46,37 +46,37 @@ class PositionService
     }
 
     /**
-     * Get positions for DataTables
+     * Get applicants for DataTables
      */
-    public function getPositionsForDatatable($request)
+    public function getApplicantsForDatatable($request)
     {
         try {
-            return $this->positionRepository->getPositionsForDatatable($request);
+            return $this->applicantRepository->getApplicantsForDatatable($request);
         } catch (\Throwable $t) {
             throw $t;
         }
     }
 
     /**
-     * Get position by ID
+     * Get applicant by ID
      */
-    public function getPositionById($id)
+    public function getApplicantById($id)
     {
         try {
-            return new PositionResource($this->positionRepository->find($id));
+            return new ApplicantResource($this->applicantRepository->find($id));
         } catch (\Throwable $t) {
             throw $t;
         }
     }
 
     /**
-     * Create position
+     * Create applicant
      */
-    public function createPosition($data)
+    public function createApplicant($data)
     {
         try {
             return DB::transaction(function() use($data) {
-                return new PositionResource($this->positionRepository->create($data));
+                return new ApplicantResource($this->applicantRepository->create($data));
             });
         } catch (\Throwable $t) {
             throw $t;
@@ -84,13 +84,13 @@ class PositionService
     }
 
     /**
-     * Update position
+     * Update applicant
      */
-    public function updatePosition($id, $data)
+    public function updateApplicant($id, $data)
     {
         try {
             return DB::transaction(function() use($id, $data) {
-                return new PositionResource($this->positionRepository->update($id, $data));
+                return new ApplicantResource($this->applicantRepository->update($id, $data));
             });
         } catch (\Throwable $t) {
             throw $t;
@@ -98,13 +98,13 @@ class PositionService
     }
 
     /**
-     * Delete position
+     * Delete applicant
      */
-    public function deletePosition($id)
+    public function deleteApplicant($id)
     {
         try {
             return DB::transaction(function() use($id) {
-                return $this->positionRepository->delete($id);
+                return $this->applicantRepository->delete($id);
             });
         } catch (\Throwable $t) {
             throw $t;

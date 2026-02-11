@@ -23,11 +23,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Event::listen(BuildingMenu::class, function (BuildingMenu $event) {
             $event->menu->add([
-                'text' => 'Dashboard',
-                'url' => 'dashboard',
-                'icon' => 'fas fa-fw fa-tachometer-alt',
-            ]);
-            $event->menu->add([
                 'text' => 'Positions',
                 'url' => 'positions',
                 'icon' => 'fas fa-fw fa-briefcase',
@@ -36,6 +31,11 @@ class AppServiceProvider extends ServiceProvider
                 'text' => 'Applicants',
                 'url' => 'applicants',
                 'icon' => 'fas fa-fw fa-users',
+            ]);
+            $event->menu->add([
+                'text' => 'Interviews',
+                'url' => 'interviews',
+                'icon' => 'fas fa-fw fa-calendar-check',
             ]);
         });
     }

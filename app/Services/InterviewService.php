@@ -2,20 +2,20 @@
 
 namespace App\Services;
 
-use App\Http\Resources\PositionResource;
-use App\Repositories\PositionRepository;
+use App\Http\Resources\InterviewResource;
+use App\Repositories\InterviewRepository;
 use Illuminate\Support\Facades\DB;
 
-class PositionService
+class InterviewService
 {
     public function __construct(
-        private PositionRepository $positionRepository
+        private InterviewRepository $interviewRepository
     ) {}
 
     /**
-     * Get all positions
+     * Get all interviews
      */
-    public function getAllPositions($request)
+    public function getAllInterviews($request)
     {
         try {
             $per_page = $request && $request->filled('paginate') ? $request->paginate : 1000;
@@ -27,12 +27,12 @@ class PositionService
                 ];
             }
 
-            $business_industries = $this->positionRepository
+            $business_industries = $this->interviewRepository
                 ->all($filters)
                 ->paginate($per_page);
 
             return [
-                'data' => PositionResource::collection($business_industries),
+                'data' => InterviewResource::collection($business_industries),
                 'page' => $business_industries->currentPage(),
                 'last_page' => $business_industries->lastPage(),
                 'per_page' => $business_industries->perPage(),
@@ -46,37 +46,37 @@ class PositionService
     }
 
     /**
-     * Get positions for DataTables
+     * Get interviews for DataTables
      */
-    public function getPositionsForDatatable($request)
+    public function getInterviewsForDatatable($request)
     {
         try {
-            return $this->positionRepository->getPositionsForDatatable($request);
+            return $this->interviewRepository->getInterviewsForDatatable($request);
         } catch (\Throwable $t) {
             throw $t;
         }
     }
 
     /**
-     * Get position by ID
+     * Get interview by ID
      */
-    public function getPositionById($id)
+    public function getInterviewById($id)
     {
         try {
-            return new PositionResource($this->positionRepository->find($id));
+            return new InterviewResource($this->interviewRepository->find($id));
         } catch (\Throwable $t) {
             throw $t;
         }
     }
 
     /**
-     * Create position
+     * Create interview
      */
-    public function createPosition($data)
+    public function createInterview($data)
     {
         try {
             return DB::transaction(function() use($data) {
-                return new PositionResource($this->positionRepository->create($data));
+                return new InterviewResource($this->interviewRepository->create($data));
             });
         } catch (\Throwable $t) {
             throw $t;
@@ -84,13 +84,13 @@ class PositionService
     }
 
     /**
-     * Update position
+     * Update interview
      */
-    public function updatePosition($id, $data)
+    public function updateInterview($id, $data)
     {
         try {
             return DB::transaction(function() use($id, $data) {
-                return new PositionResource($this->positionRepository->update($id, $data));
+                return new InterviewResource($this->interviewRepository->update($id, $data));
             });
         } catch (\Throwable $t) {
             throw $t;
@@ -98,13 +98,13 @@ class PositionService
     }
 
     /**
-     * Delete position
+     * Delete interview
      */
-    public function deletePosition($id)
+    public function deleteInterview($id)
     {
         try {
             return DB::transaction(function() use($id) {
-                return $this->positionRepository->delete($id);
+                return $this->interviewRepository->delete($id);
             });
         } catch (\Throwable $t) {
             throw $t;

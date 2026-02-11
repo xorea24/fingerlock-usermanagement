@@ -48,9 +48,16 @@
             @break
 
             @default
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css" integrity="sha256-tXJfXfp6Ewt1ilPzLDtQnJV4hclT9XuaZUKyUvmyr+Q=" crossorigin="anonymous" media="print" onload="this.media='all'" />
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css" crossorigin="anonymous" />
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" crossorigin="anonymous" />
+                <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+                <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
                 <link rel="stylesheet" href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}">
                 <link rel="stylesheet" href="{{ asset('vendor/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
                 <link rel="stylesheet" href="{{ asset('vendor/adminlte/dist/css/adminlte.min.css') }}">
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-rc3/dist/css/adminlte.min.css" crossorigin="anonymous" />
+                <link rel="stylesheet" href="/css/app.css" />
 
                 @if(config('adminlte.google_fonts.allowed', true))
                     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
@@ -117,10 +124,20 @@
             @break
 
             @default
-                <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
-                <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-                <script src="{{ asset('vendor/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
+                <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js" crossorigin="anonymous"></script>
+                <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+                <!-- Bootstrap 5 -->
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+                <!-- jQuery -->
+                <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+                <!-- DataTables -->
+                <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+                <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+                <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+                <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
                 <script src="{{ asset('vendor/adminlte/dist/js/adminlte.min.js') }}"></script>
+                <script src="/js/app.js"></script>
         @endswitch
     @endif
 
@@ -134,7 +151,7 @@
         @else
             <livewire:scripts />
         @endif
-    @endif
+    @endif    
 
     {{-- Custom Scripts --}}
     @yield('adminlte_js')
