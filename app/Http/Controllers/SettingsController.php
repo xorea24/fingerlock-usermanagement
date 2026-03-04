@@ -9,18 +9,14 @@ use App\Models\Album; // Siguraduhing naka-import ang Album model
 
 class SettingsController extends Controller
 {
-    public function index()
+    public function indexPage()
     {
-        // 1. Kunin ang lahat ng Albums para sa selection sa settings
-        $albums = Album::orderBy('name')->get();
-
-        // 2. Kunin ang kasalukuyang settings mula sa database para mai-display sa form
-        $settings = DB::table('settings')->pluck('value', 'key');
+        // Eager load photos to prevent the "count() on null" error in Blade
+        $albums = Album::with('photos')->orderBy('name')->get();
 
         return view('admin.settings.list', [
-            'title' => 'Slideshow Settings',
+            'title'  => 'Albums Management',
             'albums' => $albums,
-            'settings' => $settings,
         ]);
     }
 

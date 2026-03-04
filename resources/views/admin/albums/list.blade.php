@@ -365,37 +365,32 @@ function galleryManager() {
                 }
             }
         },
-            async submitForm(e) {
-        this.isLoading = true;
-        const form = e.target;
-        const formData = new FormData(form);
-        
-        try {
-            const response = await fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: { 
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    // ADD THIS LINE BELOW:
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value 
+        async submitForm(e) {
+            this.isLoading = true;
+            const form = e.target;
+            const formData = new FormData(form);
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const error = await response.json();
+                    alert("Error: " + (error.message || "Action failed"));
+                    this.isLoading = false;
                 }
-            });
-            
-            if (response.ok) {
-                window.location.reload();
-            } else {
-                const error = await response.json();
-                // This catches the 401 error you are seeing
-                alert("Error: " + (error.message || "Action failed"));
+            } catch (err) {
+                console.error(err);
+                alert("Network error.");
                 this.isLoading = false;
             }
-        } catch (err) {
-            console.error(err);
-            alert("Network error.");
-            this.isLoading = false;
         }
-    }
     }
 }
 </script>

@@ -80,24 +80,30 @@ class PhotoController extends Controller
     /**
      * Update photo details
      */
-    public function update(Request $request, Photo $photo)
+ public function update(Request $request, Photo $photo)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
         ]);
 
+        // FIXED: Changed 'category_name' to 'name' to match your DB
         $photo->update([
-            'title' => $request->title,
+            'name' => $request->name,
             'description' => $request->description,
         ]);
 
-        return back()->with('status', 'Photo updated successfully!')->with('last_tab', 'manage');
+        return back()
+        ->with('status', 'Photo updated successfully!')
+        ->with('last_tab', 'manage'); 
+        
     }
 
     /**
-     * Toggle photo visibility
+     * SETTINGS: Update duration, effects, and active albums
      */
+
+
     public function toggle(Photo $photo)
     {
         $photo->is_active = !$photo->is_active;
@@ -105,30 +111,23 @@ class PhotoController extends Controller
         return back()->with('status', 'Visibility updated!');
     }
 
-    /**
-     * Toggle all photos in an album
-     */
     public function toggleAll(Album $album)
     {
-        // Standardized to use 'photos()' relationship
-        $hasHidden = $album->photos()->where('is_active', false)->exists();
-        $album->photos()->update(['is_active' => $hasHidden]);
+        $hasHidden = $album->slides()->where('is_active', false)->exists();
+        $album->slides()->update(['is_active' => $hasHidden]);
         return back()->with('status', 'Album visibility updated successfully!');
     }
 
-    /**
-     * Remove photo and delete album if empty
-     */
-   public function destroy(Photo $photo)
-{
-    // Delete physical file
-    if (\Storage::disk('public')->exists($photo->image_path)) {
-        \Storage::disk('public')->delete($photo->image_path);
-    }
-    
-    $photo->delete();
-    return response()->json(['success' => true]);
+    public function destroy(Photo $photo)
+    {
+        $album = $photo->album;
+        $photo->delete();
+
+        if ($album && $album->slides()->count() === 0) {
+            $album->delete();
+        }
+
+        return back()->with('status', 'Photo removed.')->with('last_tab', 'manage');
     }
 }
-
 

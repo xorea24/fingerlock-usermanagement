@@ -9,17 +9,8 @@ use Illuminate\Support\Facades\Storage; // Added missing import for force deleti
 
 class AlbumController extends Controller
 {
-    public function dashboard()
-    {
-        $albums = Album::with(['photos' => function ($query) {
-            $query->whereNull('deleted_at');
-        }])->orderBy('name')->get();
 
-        return view('admin.dashboard', [
-            'title' => 'Albums Management',
-            'albums' => $albums,
-        ]);
-    }
+    
 
     public function index()
     {
@@ -28,14 +19,6 @@ class AlbumController extends Controller
         return view('admin.albums.list', [
             'title' => 'Albums',
             'albums' => $albums,
-
-            
-        ]);
-
-        return view('admin.recycle.list', [
-            'title' => 'recycle',
-            'recycledAlbums' => $recycledAlbums,
-
             
         ]);
     }
@@ -46,13 +29,15 @@ class AlbumController extends Controller
      */
     public function recycle()
     {
-        $trashedAlbums = Album::onlyTrashed()->get();
-        $trashedPhotos = Photo::onlyTrashed()->with('album')->get();
+        $trashedPhotosByAlbum = Photo::onlyTrashed()
+            ->with(['album' => fn($q) => $q->withTrashed()])
+            ->get()
+            ->groupBy('album_id');
 
-        return view('admin.recycle', [
+        // Make sure the first argument matches your folder structure: admin > recycle > list.blade.php
+        return view('admin.recycle.list', [
             'title' => 'Recycle Bin',
-            'trashedAlbums' => $trashedAlbums,
-            'trashedPhotos' => $trashedPhotos,
+            'trashedPhotosByAlbum' => $trashedPhotosByAlbum // Key name must match Blade variable
         ]);
     }
 
