@@ -1,14 +1,20 @@
 @extends('adminlte::auth.auth-page', ['authType' => 'login'])
 
+{{-- DITO TATANGGALIN ANG LOGO AT PANGALAN --}}
+@section('logo') @stop
+
 @section('adminlte_css_pre')
     <link rel="stylesheet" href="{{ asset('vendor/icheck-bootstrap/icheck-bootstrap.min.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Smooth transitions for the AdminLTE box */
         .login-card-body { border-radius: 1.5rem; }
-        .card { border-radius: 1.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1) !important; }
+        .card { border-radius: 1.5rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1) !important; margin-top: 2rem; }
         .input-group-text { border-radius: 0 0.75rem 0.75rem 0 !important; }
         .form-control { border-radius: 0.75rem 0 0 0.75rem !important; }
+        
+        /* Siguraduhin na walang margin/padding na maiiwan mula sa tinanggal na logo */
+        .login-logo { display: none; } 
     </style>
 @stop
 
@@ -36,11 +42,9 @@
 @stop
 
 @section('auth_body')
-    {{-- Unified Public Access Button --}}
     <div class="mb-4">
-        <a href="/gallery" class="w-full flex items-center justify-center gap-2 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-600 text-sm hover:bg-slate-100 hover:text-slate-900 transition-all duration-200">
-            <i class="fas fa-arrow-left text-xs"></i>
-            Back to Public Gallery
+        <a href="/" class="btn btn-outline-primary w-full rounded-xl py-2 text-sm font-bold">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Public Gallery
         </a>
     </div>
 
@@ -53,7 +57,6 @@
     <form action="{{ $loginUrl }}" method="post" class="mt-4">
         @csrf
 
-        {{-- Email field --}}
         <div class="input-group mb-3">
             <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
                 value="{{ old('email') }}" placeholder="{{ __('adminlte::adminlte.email') }}" autofocus>
@@ -67,7 +70,6 @@
             @enderror
         </div>
 
-        {{-- Password field --}}
         <div class="input-group mb-4">
             <input type="password" name="password" class="form-control @error('password') is-invalid @enderror"
                 placeholder="{{ __('adminlte::adminlte.password') }}">
@@ -81,10 +83,9 @@
             @enderror
         </div>
 
-        {{-- Actions --}}
         <div class="row items-center">
             <div class="col-7">
-                <div class="icheck-primary" title="{{ __('adminlte::adminlte.remember_me_hint') }}">
+                <div class="icheck-primary">
                     <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
                     <label for="remember" class="text-sm text-slate-500 font-medium">
                         {{ __('adminlte::adminlte.remember_me') }}
@@ -92,8 +93,7 @@
                 </div>
             </div>
             <div class="col-5">
-                <button type="submit" class="btn btn-primary btn-block rounded-xl font-bold shadow-md shadow-blue-100 py-2">
-                    <span class="fas fa-sign-in-alt mr-1"></span>
+                <button type="submit" class="btn btn-primary btn-block rounded-xl font-bold shadow-md py-2">
                     {{ __('adminlte::adminlte.sign_in') }}
                 </button>
             </div>
@@ -107,15 +107,6 @@
             <p class="mb-1">
                 <a href="{{ $passResetUrl }}" class="text-xs font-bold text-blue-600 hover:text-blue-800">
                     {{ __('adminlte::adminlte.i_forgot_my_password') }}
-                </a>
-            </p>
-        @endif
-
-        @if($registerUrl)
-            <p class="mb-0">
-                <span class="text-xs text-slate-400">New here?</span>
-                <a href="{{ $registerUrl }}" class="text-xs font-bold text-slate-700 hover:underline">
-                    {{ __('adminlte::adminlte.register_a_new_membership') }}
                 </a>
             </p>
         @endif

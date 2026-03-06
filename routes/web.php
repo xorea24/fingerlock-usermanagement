@@ -9,7 +9,63 @@ use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\SettingsController;
 
 Auth::routes();
+// Settings Update Route (AJAX)
+Route::get('/settings/latest', [SettingsController::class, 'getLatestData']);
 
+Route::post('/settings/update', [SettingsController::class, 'update'])->name('settings.update');
+// Add this line to handle the photo updates (title and description)
+// Siguraduhin na ang URL ay /photos/{id}/update
+Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
+Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('auth');
+
+// Siguraduhin na ang URL na ito ang tinatawag sa iyong JS fetch
+Route::get('/api/get-latest-settings', function () {
+    $lastSetting = DB::table('settings')->max('updated_at');
+    $lastImage = DB::table('photos')->max('updated_at');
+    $lastAlbum = DB::table('albums')->max('updated_at'); // Isama ang album updates
+
+    return response()->json([
+        'last_update' => max($lastSetting, $lastImage, $lastAlbum)
+    ]);
+});
+
+
+/**
+ * PUBLIC FACING VIEWS
+ */
+Route::get('/', function () {
+    $displayAlbums = DB::table('settings')->where('key', 'display_album_ids')->value('value') ?? '';
+
+    if ($displayAlbums === '' || $displayAlbums === null) {
+        $slides = Photo::where('is_active', true)->orderBy('created_at', 'desc')->get();
+    } else {
+        $albumIds = array_map('intval', explode(',', $displayAlbums));
+        $slides = Photo::where('is_active', true)->whereIn('album_id', $albumIds)->orderBy('created_at', 'desc')->get();
+    }
+
+    return view('public', compact('slides'));
+});
+
+Route::get('/public-Photo', function () {
+    $displayAlbum = DB::table('settings')->where('key', 'display_album_id')->value('value') ?? 'all';
+    $duration = DB::table('settings')->where('key', 'slide_duration')->value('value') ?? 5;
+    $effect = DB::table('settings')->where('key', 'transition_effect')->value('value') ?? 'fade';
+
+    if ($displayAlbum === 'all' || $displayAlbum === null) {
+        $slides = Photo::where('is_active', true)->orderBy('created_at', 'desc')->get();
+    } else {
+        $slides = Photo::where('is_active', true)->where('album_id', $displayAlbum)->orderBy('created_at', 'desc')->get();
+    }
+
+    return view('public-Photo', compact('slides', 'duration', 'effect'));
+});
+
+// Public Slideshow
+Route::get('/albums', [PhotoController::class, 'indexPage'])->name('albums.index');
+Route::get('/', [PhotoController::class, 'publicGallery'])->name('home');
+Route::get('/publicGallery', [PhotoController::class, 'publicGallery'])->name('gallery.public');
+
+// Change this line in web.php:
 //Settings Section
 Route::post('/settings/update', [SettingsController::class, 'update'])->name('settings.update');
 
@@ -25,20 +81,17 @@ Route::delete('/photos/force-delete-album/{id}', [AlbumController::class, 'force
 Route::delete('/{album}', [AlbumController::class, 'destroy'])->name('albums.destroy');
 
 // Public Routes
-Route::get('/', [PhotoController::class, 'publicGallery'])->name('home');
-Route::get('/gallery', [PhotoController::class, 'publicGallery'])->name('gallery.public');
+Route::get('/albums', [PhotoController::class, 'indexPage'])->name('albums.index');
+// Change this line in web.php:
 Route::get('/albums', [AlbumController::class, 'albums'])->name('albums');
 
 // Photos Group
 Route::middleware(['auth'])->group(function () {
-    // PHOTO MANAGEMENT
     Route::post('/upload', [PhotoController::class, 'store'])->name('photos.store');
-    // Siguraduhin na 'photos.update' ang name at PATCH ang method
-    // Siguraduhin na PATCH ito at tumutugma ang 'photo.update'
-    Route::patch('{photo}', [PhotoController::class, 'update'])->name('photos.update');
-    Route::get('/photos/{photo}/toggle', [PhotoController::class, 'toggle'])->name('photos.toggle');
+    Route::patch('/photos/{photo}', [PhotoController::class, 'update'])->name('photos.update');
+    Route::post('/photos/{photo}/toggle', [PhotoController::class, 'toggle'])->name('photos.toggle');
     Route::delete('/photos/{photo}', [PhotoController::class, 'destroy'])->name('photos.destroy');
-        // 4. DESTROY / DELETE
+    Route::post('/albums/{album}/toggle-all', [PhotoController::class, 'toggleAll'])->name('albums.toggleAll');
     });
 
 // Albums Group

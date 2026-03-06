@@ -23,12 +23,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Event::listen(BuildingMenu::class, function (BuildingMenu $event) {
             $event->menu->add([
-                'text' => 'Album',
+                'text' => 'Albums',
                 'url' => 'albums', // Adjust URL as needed
                 'icon' => 'fas fa-fw fa-images',
             ]);
             $event->menu->add([
-                'text' => 'Recycle',
+                'text' => 'Recycle Bin',
                 'url' => 'recycle', // Adjust URL as needed
                 'icon' => 'fas fa-fw fa-trash-alt',
             ]);

@@ -18,14 +18,12 @@ class PhotoController extends Controller
     public function __construct(
         private PositionService $positionService
     ) {
-        $this->middleware(['auth', 'is_admin']);
+        $this->middleware(['auth', 'is_admin'])->except(['publicGallery']);
     }
-
-    /**
-     * Display the main gallery management page
-     */
-    
-    public function indexPage()
+       /**
+ * Display the slideshow for the public.
+ */
+      public function indexPage()
     {
         // Eager load photos to prevent the "count() on null" error in Blade
         $albums = Album::with('photos')->orderBy('name')->get();
@@ -35,7 +33,39 @@ class PhotoController extends Controller
             'albums' => $albums,
         ]);
     }
+      
+       public function publicGallery()
+    {
+        // 1. FETCH SETTINGS (Use try-catch or ensure table exists first)
+        $settings = \DB::table('settings')->get()->keyBy('key');
+        
+        $seconds = $settings->get('slide_duration')->value ?? 5;
+        $effect = $settings->get('transition_effect')->value ?? 'fade';
+        $displayAlbumIds = $settings->get('display_album_ids')->value ?? '';
+        $albumIdArray = array_filter(explode(',', $displayAlbumIds));
 
+        // 2. FETCH SLIDES
+        $slidesQuery = \DB::table('photos')
+            ->join('albums', 'photos.album_id', '=', 'albums.id')
+            ->select('photos.*', 'albums.name as album_title', 'albums.description as album_desc')
+            ->where('photos.is_active', 1);
+
+        if (!empty($albumIdArray)) {
+            $slidesQuery->whereIn('photos.album_id', $albumIdArray);
+        }
+
+        $slides = $slidesQuery->orderBy('photos.created_at', 'desc')->get();
+
+        // 3. MASTER TIMESTAMP (FIXED: lowercase updated_at)
+        $lastUpdate = max(
+            \DB::table('settings')->max('updated_at') ?? 0,
+            \DB::table('photos')->max('updated_at') ?? 0,
+            \DB::table('albums')->max('updated_at') ?? 0 // Fixed typo 'updAted'
+        ) ?: now();
+
+        // FIXED: Pointing to admin.slideshow based on your file structure
+        return view('admin.slideshow', compact('slides', 'seconds', 'effect', 'lastUpdate'));
+    }
     /**
      * Store multiple photos and/or a new album
      */
@@ -119,15 +149,19 @@ class PhotoController extends Controller
     }
 
     public function destroy(Photo $photo)
-    {
-        $album = $photo->album;
-        $photo->delete();
+{
+    // Simply delete the photo record and the file
+    $photo->delete();
 
-        if ($album && $album->slides()->count() === 0) {
-            $album->delete();
-        }
+    // Check if the request came from your AJAX 'submitForm'
+    if (request()->ajax()) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Photo removed successfully'
+        ]);
+    }
 
-        return back()->with('status', 'Photo removed.')->with('last_tab', 'manage');
+    return back()->with('success', 'Photo deleted.');
     }
 }
 

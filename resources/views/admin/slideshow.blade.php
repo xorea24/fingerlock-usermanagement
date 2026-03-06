@@ -48,6 +48,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     
    <style>
+    .transition-fade { opacity: 0; transition: opacity 1s; }
+    .transition-slide-up { transform: translateY(100%); transition: transform 1s; }
+    .transition-slide-down { transform: translateY(-100%); transition: transform 1s; }
+    .transition-slide-left { transform: translateX(100%); transition: transform 1s; }
+    .transition-slide-right { transform: translateX(-100%); transition: transform 1s; }
+
+.active-slide { opacity: 1; transform: translate(0, 0); }
     html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: black; }
     .swiper { width: 100%; height: 100vh; }
     .swiper-slide img { width: 100%; height: 100%; object-fit: cover; }

@@ -18,8 +18,20 @@
 
 @section('content')
 <div x-data="galleryManager()" class="p-4 bg-[#f8fafc] min-h-screen">
-
-    {{-- MANAGE VIEW --}}
+    
+    {{-- Header & Sign Out --}}
+    <div class="flex justify-between items-center mb-8 px-4">
+        <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tight">Gallery Manager</h1>
+        <form method="POST" action="{{ route('logout') }}" class="inline">
+            @csrf
+            <button class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-red-500 hover:bg-red-50 rounded-xl transition text-xs font-bold uppercase tracking-widest">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Sign Out
+            </button>
+        </form>
+    </div>
     <div x-show="tab === 'manage'" x-cloak x-transition:enter="transition ease-out duration-300">
         <div class="max-w-6xl mx-auto px-4 pb-20">
             
@@ -155,7 +167,7 @@
                                         <form action="{{ route('photos.toggle', $photo->id) }}" method="POST" class="flex-1">
                                             @csrf
                                             <button type="submit" 
-                                            class="w-full py-1.5 text-center text-[10px] font-black rounded-lg transition-all border"
+                                            class="w-full py-2 text-center text-[10px] font-black rounded-lg transition-all border"
                                             :class="photoActive ? 'bg-white border-gray-200 text-gray-500' : 'bg-blue-600 border-blue-600 text-white'">
                                                 <span x-text="photoActive ? 'HIDE' : 'SHOW'"></span>
                                             </button>
