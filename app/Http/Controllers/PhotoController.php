@@ -34,11 +34,10 @@ class PhotoController extends Controller
         ]);
     }
       
-       public function publicGallery()
+    public function publicGallery()
     {
         // 1. FETCH SETTINGS (Use try-catch or ensure table exists first)
         $settings = \DB::table('settings')->get()->keyBy('key');
-        
         $seconds = $settings->get('slide_duration')->value ?? 5;
         $effect = $settings->get('transition_effect')->value ?? 'fade';
         $displayAlbumIds = $settings->get('display_album_ids')->value ?? '';

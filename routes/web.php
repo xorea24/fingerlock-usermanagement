@@ -1,5 +1,3 @@
-
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -8,7 +6,14 @@ use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\SettingsController;
 
+// Auth routes 
+
+Route::middleware(['auth'])->prefix('albums')->group(function () {
+    Route::get('/', [AlbumController::class, 'index'])->name('albums.index');
+    Route::delete('/{album}', [AlbumController::class, 'destroy'])->name('albums.destroy');
+});
 Auth::routes();
+
 // Settings Update Route (AJAX)
 Route::get('/settings/latest', [SettingsController::class, 'getLatestData']);
 
@@ -61,8 +66,7 @@ Route::get('/public-Photo', function () {
 });
 
 // Public Slideshow
-Route::get('/albums', [PhotoController::class, 'indexPage'])->name('albums.index');
-Route::get('/', [PhotoController::class, 'publicGallery'])->name('home');
+Route::get('/', [PhotoController::class, 'publicGallery'])->name('/');
 Route::get('/publicGallery', [PhotoController::class, 'publicGallery'])->name('gallery.public');
 
 // Change this line in web.php:
@@ -80,10 +84,9 @@ Route::patch('/photos/restore-album', [AlbumController::class, 'restoreAlbum'])-
 Route::delete('/photos/force-delete-album/{id}', [AlbumController::class, 'forceDeleteAlbum'])->name('Photo.delete-album');
 Route::delete('/{album}', [AlbumController::class, 'destroy'])->name('albums.destroy');
 
-// Public Routes
-Route::get('/albums', [PhotoController::class, 'indexPage'])->name('albums.index');
+
 // Change this line in web.php:
-Route::get('/albums', [AlbumController::class, 'albums'])->name('albums');
+
 
 // Photos Group
 Route::middleware(['auth'])->group(function () {
@@ -101,12 +104,11 @@ Route::controller(AlbumController::class)
     ->group(function () {
         // Ensure this points to the correct Controller and Method
         Route::get('/recycle', [AlbumController::class, 'recycle'])->name('recycle.index');
-        Route::get('/', 'index')->name('index');
+        Route::get('/albums', [AlbumController::class, 'index'])->name('admin.albums.list');
         Route::get('/datatable', 'datatable')->name('datatable');
         Route::post('/', 'store')->name('store');  
         Route::get('/{id}', 'show')->name('show'); 
         Route::patch('/{id}', 'update')->name('update');
-        
         // FIXED: Removed the extra 'albums.' prefix because it is already in the group name
         Route::delete('/{albumId}/force-delete', [AlbumController::class, 'forceDeleteAlbum'])->name('Photo.delete-album');
     });
@@ -140,3 +142,10 @@ Route::controller(SettingsController::class)
         Route::put('/{id}', 'update')->name('update');
         Route::delete('/{id}', 'delete')->name('delete');
     });
+
+    //  home to albums
+    Route::get('/home', function () {
+    return redirect('/albums');
+});
+
+Route::post('/logout', [AlbumController::class, 'logout'])->name('logout');

@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Album;
 use App\Models\Photo;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; // Added missing import for force deletion
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 
 class AlbumController extends Controller
 {
-
-    
-
+    /**
+     * Redirect to Albums after login is handled by RouteServiceProvider, 
+     * but we ensure the index method is ready here.
+     */
     public function index()
     {
         $albums = Album::orderBy('name')->get();
@@ -19,14 +22,18 @@ class AlbumController extends Controller
         return view('admin.albums.list', [
             'title' => 'Albums',
             'albums' => $albums,
-            
         ]);
     }
 
-    /**
-     * This method handles the /recycle route.
-     * Use this instead of the missing ApplicantController.
-     */
+    public function logout(Request $request): RedirectResponse
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login');
+    }
+
     public function recycle()
     {
         $trashedPhotosByAlbum = Photo::onlyTrashed()
@@ -34,10 +41,9 @@ class AlbumController extends Controller
             ->get()
             ->groupBy('album_id');
 
-        // Make sure the first argument matches your folder structure: admin > recycle > list.blade.php
         return view('admin.recycle.list', [
             'title' => 'Recycle Bin',
-            'trashedPhotosByAlbum' => $trashedPhotosByAlbum // Key name must match Blade variable
+            'trashedPhotosByAlbum' => $trashedPhotosByAlbum
         ]);
     }
 
@@ -80,10 +86,7 @@ class AlbumController extends Controller
 
     public function destroy(Album $album)
     {
-        // Soft delete all slides in this album
         Photo::where('album_id', $album->id)->delete();
-
-        // Soft delete the album itself
         $album->delete();
 
         return back()->with('status', 'Album moved to Recycle Bin.')->with('last_tab', 'manage');

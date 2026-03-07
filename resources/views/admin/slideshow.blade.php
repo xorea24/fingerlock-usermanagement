@@ -99,7 +99,7 @@
             <div class="absolute inset-0 border-4 border-red-600 rounded-full border-t-transparent animate-spin"></div>
         </div>
         <h2 class="text-white text-xl font-light tracking-[0.2em] uppercase animate-pulse">
-            Updating Gallery Content...
+            Updating images...
         </h2>
     </div>
 
