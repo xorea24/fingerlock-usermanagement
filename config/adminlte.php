@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>MAYOR OFFICE</b><br><small style="font-size: 11px; margin-left: 55px; opacity: 0.8;">Uploading System</small>',
+    'logo' => '<b>MIS-OFFICE </b><br><small style="font-size: 11px; margin-left: 55px; opacity: 0.8;">Fingerlock User-Management</small>',
     'logo_img' => 'vendor/adminlte/dist/img/stc_logo5.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,

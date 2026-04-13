@@ -5,8 +5,16 @@ use Illuminate\Support\Facades\Auth; // Added missing Auth import
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuditController;
 
 // Auth routes 
+Route::get('/User', [UserController::class, 'index']); // For viewing the page
+Route::delete('/User/{id}', [UserController::class, 'destroy']); // For deleting
+// Audit log routes
+Route::get('/log-audit', [AuditController::class, 'index'])->name('audit.index');
+Route::get('/audit', [AuditController::class, 'index'])->name('audit');
+Route::post('/hardware/ping', [SettingsController::class, 'heartbeat'])->name('hardware.ping');
 
 Route::middleware(['auth'])->prefix('albums')->group(function () {
     Route::get('/', [AlbumController::class, 'index'])->name('albums.index');
@@ -82,7 +90,7 @@ Route::delete('/photos/{id}/force', [PhotoController::class, 'forceDelete'])->na
 // Add these to fix the "Route not found" errors in your Blade files
 Route::patch('/photos/restore-album', [AlbumController::class, 'restoreAlbum'])->name('photos.restore-album');
 Route::delete('/photos/force-delete-album/{id}', [AlbumController::class, 'forceDeleteAlbum'])->name('Photo.delete-album');
-Route::delete('/{album}', [AlbumController::class, 'destroy'])->name('albums.destroy');
+// NOTE: Removed wildcard DELETE /{album} — it conflicted with other GET routes like /audit
 
 
 // Change this line in web.php:
@@ -90,6 +98,8 @@ Route::delete('/{album}', [AlbumController::class, 'destroy'])->name('albums.des
 
 // Photos Group
 Route::middleware(['auth'])->group(function () {
+    Route::resource('users', UserController::class)->except(['show']);
+    
     Route::post('/upload', [PhotoController::class, 'store'])->name('photos.store');
     Route::patch('/photos/{photo}', [PhotoController::class, 'update'])->name('photos.update');
     Route::post('/photos/{photo}/toggle', [PhotoController::class, 'toggle'])->name('photos.toggle');

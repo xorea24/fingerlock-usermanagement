@@ -70,4 +70,17 @@ class SettingsController extends Controller
 
         return back()->with('success', 'Settings updated successfully!');
     }
+
+    public function heartbeat(Request $request)
+    {
+        DB::table('settings')->updateOrInsert(
+            ['key' => 'last_hardware_ping'],
+            [
+                'value' => Carbon::now()->toDateTimeString(),
+                'updated_at' => Carbon::now()
+            ]
+        );
+
+        return response()->json(['status' => 'online', 'timestamp' => Carbon::now()]);
+    }
 }
