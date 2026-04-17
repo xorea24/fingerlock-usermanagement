@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Audit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -14,7 +15,20 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
 
-    public function toggleStatus($id) {
+    public function logout(Request $request)
+    {
+        if (Auth::check()) {
+            Audit::log('LOGOUT', "Admin user logged out: " . Auth::user()->email);
+        }
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/');
+    }
+
+    public function toggleStatus($id)
+    {
         $user = User::findOrfail($id);
         $user->is_active = !$user->is_active;
         $user->save();

@@ -1,161 +1,74 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth; // Added missing Auth import
-use App\Http\Controllers\PhotoController;
-use App\Http\Controllers\AlbumController;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuditController;
+use App\Http\Controllers\DashboardController;
 
-// Auth routes 
-Route::get('/User', [UserController::class, 'index']); // For viewing the page
-Route::delete('/User/{id}', [UserController::class, 'destroy']); // For deleting
-// Audit log routes
-Route::get('/log-audit', [AuditController::class, 'index'])->name('audit.index');
-Route::get('/audit', [AuditController::class, 'index'])->name('audit');
+
+
+/*
+|--------------------------------------------------------------------------
+| HARDWARE & API ENDPOINTS (Fingerlock Communication)
+|--------------------------------------------------------------------------
+*/
+
+// Heartbeat route for the Fingerlock hardware to report status
 Route::post('/hardware/ping', [SettingsController::class, 'heartbeat'])->name('hardware.ping');
 
-Route::middleware(['auth'])->prefix('albums')->group(function () {
-    Route::get('/', [AlbumController::class, 'index'])->name('albums.index');
-    Route::delete('/{album}', [AlbumController::class, 'destroy'])->name('albums.destroy');
-});
-Auth::routes();
+// Called by hardware on every fingerprint scan — logs success/failed attempt
+Route::post('/hardware/access', [SettingsController::class, 'reportAccess'])->name('hardware.access');
 
-// Settings Update Route (AJAX)
+// Endpoint for the hardware to fetch the latest access configurations/rules
 Route::get('/settings/latest', [SettingsController::class, 'getLatestData']);
 
-Route::post('/settings/update', [SettingsController::class, 'update'])->name('settings.update');
-// Add this line to handle the photo updates (title and description)
-// Siguraduhin na ang URL ay /photos/{id}/update
-Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
-Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update')->middleware('auth');
 
-// Siguraduhin na ang URL na ito ang tinatawag sa iyong JS fetch
-Route::get('/api/get-latest-settings', function () {
-    $lastSetting = DB::table('settings')->max('updated_at');
-    $lastImage = DB::table('photos')->max('updated_at');
-    $lastAlbum = DB::table('albums')->max('updated_at'); // Isama ang album updates
+/*
+|--------------------------------------------------------------------------
+| ADMIN AUTHENTICATED ROUTES
+|--------------------------------------------------------------------------
+*/
 
-    return response()->json([
-        'last_update' => max($lastSetting, $lastImage, $lastAlbum)
-    ]);
-});
-
-
-/**
- * PUBLIC FACING VIEWS
- */
-Route::get('/', function () {
-    $displayAlbums = DB::table('settings')->where('key', 'display_album_ids')->value('value') ?? '';
-
-    if ($displayAlbums === '' || $displayAlbums === null) {
-        $slides = Photo::where('is_active', true)->orderBy('created_at', 'desc')->get();
-    } else {
-        $albumIds = array_map('intval', explode(',', $displayAlbums));
-        $slides = Photo::where('is_active', true)->whereIn('album_id', $albumIds)->orderBy('created_at', 'desc')->get();
-    }
-
-    return view('public', compact('slides'));
-});
-
-Route::get('/public-Photo', function () {
-    $displayAlbum = DB::table('settings')->where('key', 'display_album_id')->value('value') ?? 'all';
-    $duration = DB::table('settings')->where('key', 'slide_duration')->value('value') ?? 5;
-    $effect = DB::table('settings')->where('key', 'transition_effect')->value('value') ?? 'fade';
-
-    if ($displayAlbum === 'all' || $displayAlbum === null) {
-        $slides = Photo::where('is_active', true)->orderBy('created_at', 'desc')->get();
-    } else {
-        $slides = Photo::where('is_active', true)->where('album_id', $displayAlbum)->orderBy('created_at', 'desc')->get();
-    }
-
-    return view('public-Photo', compact('slides', 'duration', 'effect'));
-});
-
-// Public Slideshow
-Route::get('/', [PhotoController::class, 'publicGallery'])->name('/');
-Route::get('/publicGallery', [PhotoController::class, 'publicGallery'])->name('gallery.public');
-
-// Change this line in web.php:
-//Settings Section
-Route::post('/settings/update', [SettingsController::class, 'update'])->name('settings.update');
-
-// PhotoController::class, 'restoreAlbum' Section 
-Route::get('/recycle', [AlbumController::class, 'recycle'])->name('recycle.index');
-Route::patch('/{id}/restore', [PhotoController::class, 'restore'])->name('photos.restore');
-Route::delete('/{albumId}/force-delete', [AlbumController::class, 'forceDeleteAlbum'])->name('Photo.delete-album');
-Route::delete('/photos/{id}/force', [PhotoController::class, 'forceDelete'])->name('photos.forceDelete');
-
-// Add these to fix the "Route not found" errors in your Blade files
-Route::patch('/photos/restore-album', [AlbumController::class, 'restoreAlbum'])->name('photos.restore-album');
-Route::delete('/photos/force-delete-album/{id}', [AlbumController::class, 'forceDeleteAlbum'])->name('Photo.delete-album');
-// NOTE: Removed wildcard DELETE /{album} — it conflicted with other GET routes like /audit
-
-
-// Change this line in web.php:
-
-
-// Photos Group
 Route::middleware(['auth'])->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+    // User Management (Enrolling/Deleting Fingerprint Users)
     Route::resource('users', UserController::class)->except(['show']);
-    
-    Route::post('/upload', [PhotoController::class, 'store'])->name('photos.store');
-    Route::patch('/photos/{photo}', [PhotoController::class, 'update'])->name('photos.update');
-    Route::post('/photos/{photo}/toggle', [PhotoController::class, 'toggle'])->name('photos.toggle');
-    Route::delete('/photos/{photo}', [PhotoController::class, 'destroy'])->name('photos.destroy');
-    Route::post('/albums/{album}/toggle-all', [PhotoController::class, 'toggleAll'])->name('albums.toggleAll');
+    Route::delete('/User/{id}', [UserController::class, 'destroy']);
+
+    // Audit Logs (Monitoring who accessed the lock and when)
+    Route::get('/audit', [AuditController::class, 'index'])->name('audit.index');
+    Route::get('/log-audit', [AuditController::class, 'index'])->name('logs.index');
+
+    // Lock Settings (Duration, Security Levels, etc.)
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [SettingsController::class, 'indexPage'])->name('index');
+        Route::post('/update', [SettingsController::class, 'update'])->name('update');
+        Route::patch('/update', [SettingsController::class, 'update'])->name('patch');
     });
 
-// Albums Group
-Route::controller(AlbumController::class)
-    ->prefix('albums')
-    ->name('albums.') 
-    ->group(function () {
-        // Ensure this points to the correct Controller and Method
-        Route::get('/recycle', [AlbumController::class, 'recycle'])->name('recycle.index');
-        Route::get('/albums', [AlbumController::class, 'index'])->name('admin.albums.list');
-        Route::get('/datatable', 'datatable')->name('datatable');
-        Route::post('/', 'store')->name('store');  
-        Route::get('/{id}', 'show')->name('show'); 
-        Route::patch('/{id}', 'update')->name('update');
-        // FIXED: Removed the extra 'albums.' prefix because it is already in the group name
-        Route::delete('/{albumId}/force-delete', [AlbumController::class, 'forceDeleteAlbum'])->name('Photo.delete-album');
-    });
-
-
-
-// Applicants Group
-Route::controller(PhotoController::class)
-    ->prefix('recycle')
-    ->name('recycle.')
-    ->group(function () {
-        Route::get('recycle', 'index')->name('index');
-        Route::get('/datatable', 'datatable')->name('datatable');
-        Route::get('/search', 'search')->name('search');
-        Route::get('/{id}', 'show')->name('show');
-        Route::post('/', 'store')->name('store');
-        Route::put('/{id}', 'update')->name('update');
-        Route::delete('/{id}', 'delete')->name('delete');
-    });
-
-// Interviews Group
-Route::controller(SettingsController::class)
-    ->prefix('settings')
-    ->name('settings')
-    ->group(function () {
-        Route::get('/', 'indexPage')->name('index');
-        Route::get('/datatable', 'datatable')->name('datatable');
-        Route::get('/search', 'search')->name('search');
-        Route::get('/{id}', 'show')->name('show');
-        Route::post('/', 'store')->name('store');
-        Route::put('/{id}', 'update')->name('update');
-        Route::delete('/{id}', 'delete')->name('delete');
-    });
-
-    //  home to albums
-    Route::get('/home', function () {
-    return redirect('/albums');
 });
 
-Route::post('/logout', [AlbumController::class, 'logout'])->name('logout');
+/*
+|--------------------------------------------------------------------------
+| AUTHENTICATION & REDIRECTS
+|--------------------------------------------------------------------------
+*/
+
+Auth::routes(['register' => false]); // Usually, you don't want public registration for a lock system
+
+Route::get('/', function () {
+    return redirect('/login');
+});
+
+
+
+Route::get('/home', function () {
+    return redirect()->route('admin.dashboard');
+});
+
+Route::post('/logout', [UserController::class, 'logout'])->name('logout');

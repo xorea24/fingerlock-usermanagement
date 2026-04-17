@@ -1,5 +1,16 @@
 @extends('adminlte::auth.auth-page', ['authType' => 'login'])
 
+{{-- 
+    ===========================================================================
+    CUSTOM LOGIN PAGE FOR MAYOR'S OFFICE UPLOADING SYSTEM (FINGERLOCK)
+    ===========================================================================
+    This file overrides the default AdminLTE login view. It features a custom
+    styled card, customized form controls, and branding specific to the 
+    Mayor's Office Uploading System. It utilizes Tailwind CSS for some utility 
+    classes alongside the custom inline styles defined below.
+    ===========================================================================
+--}}
+
 {{-- Hide the default AdminLTE logo above the card --}}
 @section('logo')
 @stop
