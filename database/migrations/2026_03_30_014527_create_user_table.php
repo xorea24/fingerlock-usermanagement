@@ -11,9 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            // This is the specific field for your fingerlock system
-            $table->string('fingerprint_id')->nullable()->unique()->after('is_admin'); 
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->boolean('is_admin')->default(false);
+            $table->string('fingerprint_id')->nullable()->unique();
+            $table->rememberToken();
+            $table->timestamps();
         });
     }
 
@@ -22,8 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('fingerprint_id');
-        });
+        Schema::dropIfExists('users');
     }
 };
