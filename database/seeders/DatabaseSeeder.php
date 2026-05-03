@@ -4,8 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Support\Str;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,15 +17,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
+        // This creates your specific Admin user
         User::factory()->create([
-            'name' => 'Joshua',
-            'email' => 'admin@gmail.com',
+            'name' => 'Jireh Delacruz',
+            'email' => 'jirehdelacruz@gmail.com',
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => Hash::make('password'), // Much cleaner than the long hash!
             'remember_token' => Str::random(10),
-            'is_admin' => 1
+            'is_admin' => 1,
         ]);
+
+        // Optional: Create 10 random users for testing your tracking system
+        // User::factory(10)->create();
     }
 }

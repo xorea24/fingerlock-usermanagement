@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>MIS-OFFICE </b><br><small style="font-size: 11px; margin-left: 55px; opacity: 0.8;">Fingerlock User-Management</small>',
+    'logo' => '<b>MIS-OFFICE </b><br><small style="font-size: 11px; margin-left: 55px; opacity: 0.8;">Fingerlock User Management</small>',
     'logo_img' => 'vendor/adminlte/dist/img/stc_logo5.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -114,7 +114,7 @@ return [
         'mode' => 'fullscreen',
         'img' => [
             'path' => 'vendor/adminlte/dist/img/stc_logo5.png',
-            'alt' => 'AdminLTE Preloader Image',    
+            'alt' => 'AdminLTE Preloader Image',
             'effect' => 'animation__shake',
             'width' => 60,
             'height' => 60,

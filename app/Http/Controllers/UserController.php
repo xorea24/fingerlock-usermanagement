@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Models\Audit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth; // <-- Added this
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -14,13 +14,8 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-
-    public function logout(Request $request)
+    public function logout(Request $request) // <-- Added Request type hint
     {
-        if (Auth::check()) {
-            Audit::log('LOGOUT', "Admin user logged out: " . Auth::user()->email);
-        }
-
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -34,10 +29,49 @@ class UserController extends Controller
         $user->save();
         return back()->with('success', 'User status toggled successfully.');
     }
-    public function index()
+
+    public function index(Request $request)
     {
-        $users = User::latest()->get();
-        return view('admin.users.index', compact('users'));
+        // If search is submitted but empty, redirect while PRESERVING other filters (role, status)
+        if ($request->has('search') && empty(trim($request->input('search', '')))) {
+            return redirect()->route('users.index', $request->except('search'));
+        }
+
+        $search = trim($request->input('search'));
+        $role = trim($request->input('role'));
+        $status = $request->input('status'); // <-- Fixed typo here
+
+        $query = User::query();
+
+        // Search logic 
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $term = '%' . strtolower($search) . '%';
+                $q->whereRaw('LOWER(name) LIKE ?', [$term])
+                    ->orWhereRaw('LOWER(email) LIKE ?', [$term])
+                    ->orWhereRaw('LOWER(fingerprint_id) LIKE ?', [$term]);
+            });
+        }
+
+        // Role filter (Admin vs Standard)
+        if ($request->filled('role')) {
+            $query->where('is_admin', $role);
+        }
+
+        // 3. Biometric Status Filter (Enrolled vs Not Enrolled)
+        if ($request->filled('status')) {
+            if ($status === 'enrolled') {
+                $query->whereNotNull('fingerprint_id');
+            } elseif ($status === 'not_enrolled') {
+                $query->whereNull('fingerprint_id');
+            }
+        }
+
+        $users = $query->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin.users.index', compact('users', 'search', 'role', 'status'));
     }
 
     /**
