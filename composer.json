@@ -88,6 +88,12 @@
             "php-http/discovery": true
         }
     },
+    "audit": {
+        "ignore": {
+            "PKSA-21fb-n1x5-5nf7": "league/commonmark advisory - accepted risk",
+            "PKSA-2cx9-ynrq-qdk3": "league/commonmark advisory - accepted risk"
+        }
+    },
     "minimum-stability": "stable",
     "prefer-stable": true
 }
